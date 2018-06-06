@@ -45,6 +45,7 @@ namespace WindowsFormsApp1
             buffer[0].Text = categories[0].Coef.ToString();
             NumericUpDown npCat = (NumericUpDown)buffer[0];
             npCat.DecimalPlaces = 2;
+            npCat.Enabled = false;
             if (categories[0].Questions.Count > 0)
             {
                 foreach (var ques in categories[0].Questions)
@@ -70,11 +71,13 @@ namespace WindowsFormsApp1
                     showCat(subcat,1);
                 }
             }
-
+            //Affichage des autres catégories
             for (int i = 1; i < categories.Count; i++)
             {
                 showCat(categories[i],0);
             }
+
+
             hasLoaded = true;
         }
 
@@ -100,6 +103,11 @@ namespace WindowsFormsApp1
 
             NumericUpDown npCat = (NumericUpDown)buffer[0];
             npCat.DecimalPlaces = 2;
+
+            if(subLevel == 0)
+            {
+                npCat.Enabled = false;
+            }
 
             if(cat.Questions.Count > 0)
             {

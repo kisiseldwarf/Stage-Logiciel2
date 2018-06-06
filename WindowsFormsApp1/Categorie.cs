@@ -51,25 +51,25 @@ namespace WindowsFormsApp1
             get
             {
 
-                float moy = 0;
-                float nb = 0;
+                float addNote = 0;
+                float addCoef = 0;
                 //Si la catégorie a des questions et des sous-catégories
                 if(Questions.Count > 0 && Subcategories.Count > 0)
                 {
                     //Moyenne d'une catégorie avec le coefficient de chaque question
                     foreach (var item in Questions)
                     {
-                        moy += item.Note * item.Coef;
-                        nb += item.Coef;
+                        addNote += item.Note * item.Coef;
+                        addCoef += item.Coef;
                     }
                     //Moyenne d'une catégorie avec le coefficient de chaque sous-catégories
                     foreach (var item in Subcategories)
                     {
-                        moy += item.Moyenne * item.Coef;
-                        nb += item.Coef;
+                        addNote += item.Moyenne * item.Coef;
+                        addCoef += item.Coef;
                     }
-                    if (nb != 0)
-                        return moy / nb;
+                    if (addCoef != 0)
+                        return addNote / addCoef;
                     else
                         return 0;
                 }
@@ -81,11 +81,11 @@ namespace WindowsFormsApp1
                         //Moyenne d'une catégorie avec le coefficient de chaque sous-catégories
                         foreach (var item in Subcategories)
                         {
-                            moy += item.Moyenne * item.Coef;
-                            nb += item.Coef;
+                            addNote += item.Moyenne * item.Coef;
+                            addCoef += item.Coef;
                         }
-                        if (nb != 0)
-                            return moy / nb;
+                        if (addCoef != 0)
+                            return addNote / addCoef;
                         else
                             return 0;
                     }
@@ -95,11 +95,11 @@ namespace WindowsFormsApp1
                         //Moyenne d'une catégorie avec le coefficient de chaque question
                         foreach (var item in Questions)
                         {
-                            moy += item.Note * item.Coef;
-                            nb += item.Coef;
+                            addNote += item.Note * item.Coef;
+                            addCoef += item.Coef;
                         }
-                        if (nb != 0)
-                            return moy / nb;
+                        if (addCoef != 0)
+                            return addNote / addCoef;
                         else
                             return 0;
                     }

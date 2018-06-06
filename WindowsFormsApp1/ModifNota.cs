@@ -13,11 +13,13 @@ namespace WindowsFormsApp1
     public partial class ModifNota : Form
     {
         float[] notation;
+        float[] notationSat;
         Main parent;
         public ModifNota(Main parent)
         {
             InitializeComponent();
             notation = new float[3];
+            notationSat = new float[2];
             this.parent = parent;
             notation[0] = parent.evaluations[0].Categories[0].Questions[0].Notation[0];
             notation[1] = parent.evaluations[0].Categories[0].Questions[0].Notation[1];
@@ -26,6 +28,12 @@ namespace WindowsFormsApp1
             note1.DecimalPlaces = 2;
             note2.DecimalPlaces = 2;
             note3.DecimalPlaces = 2;
+
+            notationSat[0] = parent.evaluations[0].NotationSatGlobale[0];
+            notationSat[1] = parent.evaluations[0].NotationSatGlobale[1];
+
+            noteSat1.DecimalPlaces = 2;
+            noteSat2.DecimalPlaces = 2;
 
             parent.Enabled = false;
 
@@ -43,6 +51,9 @@ namespace WindowsFormsApp1
             note2.Value = (decimal)notation[1];
             note3.Value = (decimal)notation[2];
 
+            noteSat1.Value = (decimal)notationSat[0];
+            noteSat2.Value = (decimal)notationSat[1];
+
         }
 
         /// <summary>
@@ -53,8 +64,13 @@ namespace WindowsFormsApp1
             notation[0] = (float)note1.Value;
             notation[1] = (float)note2.Value;
             notation[2] = (float)note3.Value;
+
+            notationSat[0] = (float)noteSat1.Value;
+            notationSat[1] = (float)noteSat2.Value;
             foreach (var eval in parent.evaluations)
             {
+                eval.NotationSatGlobale[0] = notationSat[0];
+                eval.NotationSatGlobale[1] = notationSat[1];
                 foreach (var cat in eval.Categories)
                 {
                     if(cat.Questions.Count > 0 && cat.Subcategories.Count > 0)

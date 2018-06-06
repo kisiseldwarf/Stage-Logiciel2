@@ -15,3 +15,6 @@ C:\Users\hadikk\Source\Repos\WindowsFormsApp1\WindowsFormsApp1\obj\Debug\Windows
 C:\Users\hadikk\Source\Repos\WindowsFormsApp1\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.ModifCoef.resources
 C:\Users\hadikk\Source\Repos\WindowsFormsApp1\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.ModifNota.resources
 C:\Users\hadikk\Source\Repos\WindowsFormsApp1\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.ModifCoefPourcentage.resources
+C:\Users\hadikk\Source\Repos\WindowsFormsApp1\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.chiffreApresVirgule.resources
+C:\Users\hadikk\Source\Repos\WindowsFormsApp1\WindowsFormsApp1\bin\Debug\CcExcelWriter.dll
+C:\Users\hadikk\Source\Repos\WindowsFormsApp1\WindowsFormsApp1\bin\Debug\DocumentFormat.OpenXml.dll

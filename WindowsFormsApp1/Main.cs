@@ -9,12 +9,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CcExcelWriter;
 
 namespace WindowsFormsApp1
 {
     public partial class Main : Form
     {
         public List<Evaluation> evaluations; //La donnée principale, contenant toutes les évaluations.
+        public int nbApresVirgule = 0;
 
         /// <summary>
         /// Constructeur de la Form
@@ -80,10 +82,14 @@ namespace WindowsFormsApp1
                             eval.Heure = excelReader.GetString(i);
                             break;
                         case 2:
-                            eval.Etud.Prenom = excelReader.GetString(i);
+                            eval.Etud.Prenom = excelReader.GetString(i).ToLower();
+                            if (eval.Etud.Prenom.Length > 1)
+                                eval.Etud.Prenom = eval.Etud.Prenom[0].ToString().ToUpper() + eval.Etud.Prenom.Substring(1);
+                            else
+                                eval.Etud.Prenom = eval.Etud.Prenom[0].ToString();
                             break;
                         case 3:
-                            eval.Etud.Nom = excelReader.GetString(i);
+                            eval.Etud.Nom = excelReader.GetString(i).ToUpper();
                             break;
                         case 4:
                             eval.Etud.Formation = excelReader.GetString(i);
@@ -176,6 +182,7 @@ namespace WindowsFormsApp1
                         eval.Categories[1].Subcategories[2].Questions[i - 31].Reponse = excelReader.GetString(i);
                     }
                 }
+
                 res.Add(eval); //Ajout de l'évaluation chargée
             }
             excelReader.Close(); //On n'oublie pas de fermer le fichier afin de permettre à un autre logiciel d'y acceder une fois notre chargement effectué.
@@ -245,22 +252,33 @@ namespace WindowsFormsApp1
             filePreview.Clear();
             for (int i = 0; i < evaluations.Count; i++)
             {
-                filePreview.Text += evaluations[i].Moyenne + "  :   " + evaluations[i].Observation+  "\n";
+                filePreview.Text += evaluations[i].Etud.Nom + " " + evaluations[i].Etud.Prenom + " " + evaluations[i].Moyenne + "  :   " + evaluations[i].Observation+  "\n";
                 filePreview.Text += "\n";
             }
         }
 
+        /// <summary>
+        /// Assure la cohérence des controls du formulaire
+        /// </summary>
+        
+        /*
+         * DESCRIPTION :
+         * Elle assure la cohérence des controls, donc des éléments du formulaire. Par exemple, elle empêche
+         * qu'on puisse appuyer sur le bouton pour exporter en csv alors qu'on n'a pas choisi de source. 
+         */  
         private void affichage()
         {
             if(source.Text == "")
             {
                 modifyButton.Enabled = false;
                 modifyCoef.Enabled = false;
+                button1.Enabled = false;
             }
             else
             {
                 modifyButton.Enabled = true;
                 modifyCoef.Enabled = true;
+                button1.Enabled = true;
             }
         }
 
@@ -280,9 +298,82 @@ namespace WindowsFormsApp1
         /// Fonction permettant d'exporter en CSV les données contenues dans évaluations
         /// </summary>
         /// <param name="path">chemin du fichier </param>
-        private void exportCSV(string path)
+        public void exportCSV(string path, int nbApresVirgule)
         {
+            string[] res = new string[evaluations.Count()];
+            for(int i = 0; i < evaluations.Count; i++)
+            {
+                res[i] += evaluations[i].Etud.Prenom + ";"; 
+                res[i] += evaluations[i].Etud.Nom + ";"; 
+                foreach (var cat in evaluations[i].Categories)
+                {
+                    res[i] += Math.Round(cat.Moyenne, nbApresVirgule) + ";";
+                }
+                res[i] += Math.Round(evaluations[i].Moyenne,nbApresVirgule);
+            }
+            File.WriteAllLines(path, res);
+        }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            chiffreApresVirgule cp = new chiffreApresVirgule(this);
+            cp.Show(this);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            DialogResult res;
+            dialog.Title = "Exporter vers SCODOC";
+            dialog.Filter = "CSV|*.csv";
+            res = dialog.ShowDialog();
+            if (res == DialogResult.OK)
+            {
+                StreamReader fsReader = new StreamReader(dialog.FileName,Encoding.Default);
+                string line;
+                List<string> file = new List<string>();
+                while ((line = fsReader.ReadLine()) != null)
+                {
+                    file.Add(line);
+                }
+                fsReader.Close();
+                if (file[0].Split(';')[0].StartsWith("Feuille saisie note (à enregistrer au format excel)"))
+                {
+
+                    //Traitement ici
+                    string[] buffer;
+
+                    for (int i = 8; i < file.Count(); i++)
+                    {
+                        buffer = file[i].Split(';');
+                        if (buffer[0].StartsWith("!EID"))
+                        {
+                            for (int j = 0; j < evaluations.Count(); j++)
+                            {
+                                if (evaluations[j].Etud.Nom == buffer[1] && evaluations[j].Etud.Prenom == buffer[2])
+                                {
+                                    buffer[4] = evaluations[j].Moyenne.ToString();
+                                }
+                            }
+                            file[i] = String.Join(";", buffer);
+                        }
+
+                    }
+
+                    try
+                    {
+                        File.WriteAllLines(dialog.FileName, file, Encoding.Default);
+                    }
+                    catch(Exception ee)
+                    {
+                        MessageBox.Show("erreur : " + ee.Message, "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }                   
+                else
+                {
+                    //on est pas dans un fichier scodoc
+                }
+            }
         }
     }
 }

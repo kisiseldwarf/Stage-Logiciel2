@@ -9,13 +9,13 @@ namespace WindowsFormsApp1
     public class Evaluation
     {
         //Données de la classe
-
         string date;
         string heure;
 
         Formateur format;
 
-        Etudiant etud;
+        Etudiant etud;  
+
 
         string dureeStage;
         string debutEtFin;
@@ -24,6 +24,8 @@ namespace WindowsFormsApp1
         List<Categorie> categories;
 
         string satisfactionGlobale;
+        float[] notationSatGlobale = new float[2];
+        float coefSatGlobale;
 
         string observation;
         string repriseEtudiant;
@@ -94,6 +96,9 @@ namespace WindowsFormsApp1
             repriseEtudiant = "";
             date = "";
             heure ="";
+            CoefSatGlobale = 1;
+            NotationSatGlobale[0] = 12;
+            NotationSatGlobale[1] = 18;
         }
 
         //Propriétés
@@ -113,24 +118,33 @@ namespace WindowsFormsApp1
         {
             get
             {
-                float moy = 0;
-                float nb = 0;
+                float addMoy = 0;
+                float addCoef = 0;
                 //Moyenne d'une catégorie avec le coefficient de chaque question
                 foreach (var cat in categories)
                 {
-                    moy += cat.Moyenne * cat.Coef;
-                    nb += cat.Coef;
+                    addMoy += cat.Moyenne*cat.Coef;
+                    addCoef += cat.Coef;
                 }
-                if (nb != 0)
-                    return moy / nb;
-                else
-                    return 0;
+                addCoef += CoefSatGlobale;
+                addMoy += SatNote() * CoefSatGlobale;
+                return addMoy/addCoef;
             }
+        }
+
+        private float SatNote()
+        {
+            if (satisfactionGlobale == "a donné satisfaction ou a dépassé vos attentes")
+                return notationSatGlobale[0];
+            else
+                return notationSatGlobale[1];
         }
 
         public string DifficulteStage { get => difficulteStage; set => difficulteStage = value; }
         internal Formateur Format { get => format; set => format = value; }
         internal Etudiant Etud { get => etud; set => etud = value; }
         internal List<Categorie> Categories { get => categories; set => categories = value; }
+        public float[] NotationSatGlobale { get => notationSatGlobale; set => notationSatGlobale = value; }
+        public float CoefSatGlobale { get => coefSatGlobale; set => coefSatGlobale = value; }
     }
 }

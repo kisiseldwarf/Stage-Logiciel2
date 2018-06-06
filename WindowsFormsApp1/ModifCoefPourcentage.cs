@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
@@ -91,6 +86,8 @@ namespace WindowsFormsApp1
                 categories.Add(catBuffer);
                 coefTotal += cat.Coef;
             }
+            //Satisfaction
+            satCoef.Value = (decimal)parent.evaluations[0].CoefSatGlobale;
         }
 
         /// <summary>
@@ -149,9 +146,10 @@ namespace WindowsFormsApp1
 
         private void validateBut_Click(object sender, EventArgs e)
         {
+            saveSatCoef(parent.evaluations);
             for (int i = 0; i < parent.evaluations.Count; i++)
             {
-                saveData(categories, parent.evaluations[i].Categories);
+                saveCatCoef(categories, parent.evaluations[i].Categories);
             }
 
             ModifCoef mc = new ModifCoef(parent);
@@ -165,11 +163,19 @@ namespace WindowsFormsApp1
         /// </summary>
         /// <param name="source">La liste de catégorie officiant comme les données à copier</param>
         /// <param name="dest">La liste de catégories recevant ces données</param>
-        private void saveData(List<Categorie> source, List<Categorie> dest)
+        private void saveCatCoef(List<Categorie> source, List<Categorie> dest)
         {
             for (int i = 0; i < source.Count; i++)
             {
                 dest[i].Coef = source[i].Coef / 10;
+            }
+        }
+
+        public void saveSatCoef(List<Evaluation> dest)
+        {
+            for (int i = 0; i < dest.Count; i++)
+            {
+                dest[i].CoefSatGlobale = (float)satCoef.Value;
             }
         }
 
@@ -205,15 +211,61 @@ namespace WindowsFormsApp1
             NumericUpDown np = (NumericUpDown)sender;
             int id = Int32.Parse(np.Name.Substring(7));
             Control[] buffer = Controls.Find("labelText" + id, true);
+            
             if (categories.Find(x => x.Name == buffer[0].Text) != null)
             {
+                float dif = (float)np.Value - categories[categories.FindIndex(x => x.Name == buffer[0].Text)].Coef;
                 categories[categories.FindIndex(x => x.Name == buffer[0].Text)].Coef = (float)np.Value;
+                dif = dif / (categories.Count - 1);
+                foreach (var cat in categories)
+                {
+                    if(cat != categories[categories.FindIndex(x => x.Name == buffer[0].Text)])
+                    {
+                        cat.Coef = cat.Coef - dif;
+                    }
+                }
             }
         }
+
+        /// <summary>
+        /// RefreshPreview met à jour l'affichage des données.
+        /// </summary>
+        
+        /* DESCRIPTION
+         * De par sa nature, on pourrait croire que cette fonction est redondante avec refreshData, mais les deux ont des buts complétement différents.
+         * Les deux rafraîchissent, certe, mais pas le même élément. 
+         * Alors que refreshData met à jour les données en mémoire tampon,
+         * refreshPreview met à jour l'affichage de ces données.
+         */
+
+        private void refreshPreview()
+        {
+            for (int i = 0; i < categories.Count; i++)
+            {
+                if(controlsList.Find(x => x.Text == categories[i].Name) != null)
+                {
+                    int id = Int32.Parse(controlsList.Find(x => x.Text == categories[i].Name).Name.Substring(9));
+                    Control[] buffer = Controls.Find("coefNum" + id, true);
+                    NumericUpDown np = (NumericUpDown)buffer[0];
+                    np.Value = (decimal)categories[i].Coef;
+                }
+            }
+        }
+
+        /// <summary>
+        /// evenement appellé quand un élément numericUpDown correspondant à un coefficient en pourcentage est modifié.
+        /// </summary>
         private void coefNum1_ValueChanged(object sender, EventArgs e)
         {
+            //hasloaded permet de savoir quand la form a été complétement initialisée, afin d'éviter de lancer
+            //le traitement de cet événement (qui se déclenche avant que tout ait été initialisé ! Car il se déclenche
+            //a chaque fois qu'une nouvelle valeur est entrée dans un numericUpDown, y compris quand cette nouvelle valeur
+            //lui ait été affecté dans notre constructeur.
             if (hasLoaded)
+            {
                 refreshData(categories, sender);
+                refreshPreview();
+            }
         }
     }
 }
